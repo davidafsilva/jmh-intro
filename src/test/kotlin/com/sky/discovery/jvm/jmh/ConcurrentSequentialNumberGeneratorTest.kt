@@ -7,7 +7,7 @@ class ConcurrentSequentialNumberGeneratorTest : DescribeSpec({
 
     describe("a concurrent sequential number generator") {
         val initialValue = 99L
-        val generator = UniqueNumberGenerator.concurrentSeq(start = initialValue)
+        val generator = NumberGenerator.concurrentSeq(start = initialValue)
 
         describe("generating a number") {
             it("does return the default initial value") {

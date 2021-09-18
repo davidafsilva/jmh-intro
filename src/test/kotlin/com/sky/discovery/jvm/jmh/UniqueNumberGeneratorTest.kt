@@ -6,7 +6,7 @@ import io.kotest.core.spec.style.DescribeSpec
 class UniqueNumberGeneratorTest : DescribeSpec({
 
     describe("an unique number generator factory") {
-        val factory = UniqueNumberGenerator
+        val factory = NumberGenerator
 
         describe("creating an sequential generator") {
 
