@@ -1,4 +1,4 @@
-package com.sky.discovery.jvm.jmh
+package pt.davidafsilva.jvm.jmh
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.longs.shouldBeExactly

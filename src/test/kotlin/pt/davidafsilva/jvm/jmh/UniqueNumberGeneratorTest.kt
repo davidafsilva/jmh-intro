@@ -1,4 +1,4 @@
-package com.sky.discovery.jvm.jmh
+package pt.davidafsilva.jvm.jmh
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.DescribeSpec
@@ -11,22 +11,22 @@ class UniqueNumberGeneratorTest : DescribeSpec({
         describe("creating an sequential generator") {
 
             it("does not throw any exceptions without a start value specified") {
-                shouldNotThrowAny { factory.seq() }
+                shouldNotThrowAny { NumberGenerator.seq() }
             }
 
             it("does not throw any exceptions with a start value specified") {
-                shouldNotThrowAny { factory.seq(start = 111) }
+                shouldNotThrowAny { NumberGenerator.seq(start = 111) }
             }
         }
 
         describe("creating a concurrent sequential generator") {
 
             it("does not throw any exceptions without a start value specified") {
-                shouldNotThrowAny { factory.concurrentSeq() }
+                shouldNotThrowAny { NumberGenerator.concurrentSeq() }
             }
 
             it("does not throw any exceptions with a start value specified") {
-                shouldNotThrowAny { factory.concurrentSeq(start = 111) }
+                shouldNotThrowAny { NumberGenerator.concurrentSeq(start = 111) }
             }
         }
     }

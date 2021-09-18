@@ -1,4 +1,4 @@
-package com.sky.discovery.jvm.jmh
+package pt.davidafsilva.jvm.jmh
 
 import java.util.concurrent.atomic.AtomicLong
 
