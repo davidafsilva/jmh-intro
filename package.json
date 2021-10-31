@@ -1,6 +1,10 @@
 {
   "name": "jmh-intro",
   "version": "1.0.0",
+  "repository": "git@github.com:davidafsilva/jmh-intro.git",
+  "author": "David Silva <david@davidafsilva.pt>",
+  "license": "MIT",
+  "private": false,
   "scripts": {
     "presentation": "cd src/presentation; vite"
   },
