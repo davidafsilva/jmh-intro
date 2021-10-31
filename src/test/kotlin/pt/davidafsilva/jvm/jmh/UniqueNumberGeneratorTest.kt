@@ -11,22 +11,22 @@ class UniqueNumberGeneratorTest : DescribeSpec({
         describe("creating an sequential generator") {
 
             it("does not throw any exceptions without a start value specified") {
-                shouldNotThrowAny { NumberGenerator.seq() }
+                shouldNotThrowAny { factory.seq() }
             }
 
             it("does not throw any exceptions with a start value specified") {
-                shouldNotThrowAny { NumberGenerator.seq(start = 111) }
+                shouldNotThrowAny { factory.seq(start = 111) }
             }
         }
 
         describe("creating a concurrent sequential generator") {
 
             it("does not throw any exceptions without a start value specified") {
-                shouldNotThrowAny { NumberGenerator.concurrentSeq() }
+                shouldNotThrowAny { factory.concurrentSeq() }
             }
 
             it("does not throw any exceptions with a start value specified") {
-                shouldNotThrowAny { NumberGenerator.concurrentSeq(start = 111) }
+                shouldNotThrowAny { factory.concurrentSeq(start = 111) }
             }
         }
     }
