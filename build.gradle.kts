@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.5.30"
     `java-library`
     idea
+    id("me.champeau.jmh") version "0.6.6"
 }
 
 idea {
@@ -43,4 +44,13 @@ tasks {
     withType<Test> {
         useJUnitPlatform()
     }
+}
+
+jmh {
+    failOnError.set(true)
+    resultFormat.set("JSON")
+    val reportsDirectory = File("build/reports/jmh/").apply { mkdirs() }
+    resultsFile.set(reportsDirectory.resolve("report.json"))
+    val pattern = project.findProperty("benchmark")?.toString() ?: ".*Benchmark"
+    includes.add(pattern)
 }
