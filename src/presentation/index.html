@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Presentation</title>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <h3>An Introduction to JMH</h3>
+            <p>
+                <small>
+                    <a target="_blank" href="https://github.com/davidafsilva/jmh-intro">github/davidafsilva</a>
+                </small>
+            </p>
+        </section>
+        <section>
+            <h3>Schedule</h3>
+            <ul>
+                <li>What's JMH</li>
+                <li>JMH Concepts</li>
+                <li>Gradle Integration</li>
+                <li>Quick Practice Exercise</li>
+            </ul>
+        </section>
+        <section>
+            <h3>What's JMH</h3>
+            <ul>
+                <li>Framework for building any type of benchmarks</li>
+                <li>Capable of targeting all<sup>*</sup> languages within the JVM ecosystem</li>
+                <li>Generates synthetic benchmark code from our own code
+                    <ul>
+                        <li>Mostly from meta-annotations</li>
+                    </ul>
+                </li>
+                <li>
+                    Runs as a standalone application
+                    <ul>
+                        <li>Can be plugged in with most of the current build systems and IDEs</li>
+                    </ul>
+                </li>
+                <li><a target="_blank" href="https://github.com/openjdk/jmh">github.com/openjdk/jmh</a></li>
+            </ul>
+        </section>
+        <section>
+            <h3>JMH Goal</h3>
+            <ul>
+                <li>Provide an API/framework to simplify how benchmarks are done and measured</li>
+            </ul>
+            <ul>
+                <li>Deals JVM optimizations</li>
+                <li>Deals with warmups</li>
+                <li>Variety of measurements and benchmark modes</li>
+                <li>Concurrency</li>
+                <li>...</li>
+                <li>No more "manual" measurements in the form of
+                    <pre><code data-trim data-noescape>
+                    val start = System.currentTimeMillis()
+                    computePi()
+                    val elapsed = System.currentTimeMillis() - start
+                    </code></pre>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>JMH Concepts</h3>
+            <small>// bear with me for the next 10 minutes</small>
+        </section>
+        <section>
+            <h3>JVM Fork</h3>
+            <ul>
+                <li>Enables benchmark execution on N forks of the JVM</li>
+                <li>Enables configuration of the target JVM(s) as well as its arguments</li>
+                <pre><code data-trim data-noescape>
+                    // runs the target benchmark(s) on 2 JVM instances
+                    @Fork(2)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Iteration</h3>
+            <ul>
+                <li>Running block of an actual benchmark test</li>
+                <li>Where the benchmarked code will reside</li>
+                <li>Properties:
+                    <ul>
+                        <li>Amount: number of iterations</li>
+                        <li>Duration: duration of the iteration, must be lower than the timeout</li>
+                    </ul>
+                </li>
+                <li>There are two types of iterations: warmup, measurement</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Iteration: Warmup</h3>
+            <ul>
+                <li>Serves as an initial round of iterations for the code being benchmarked</li>
+                <li>Ideally this would run long enough to trigger JIT optimizations (inlining, code removal, etc)</li>
+                <pre><code data-trim data-noescape class="java">
+                    // runs 2 warm up iterations, 5 seconds each
+                    @Warmup(iterations = 2, time = 5, timeUnit = SECONDS)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Iteration: Measurement</h3>
+            <ul>
+                <li>Where data points will be collected to aggregate and compute the measurement, the actual benchmark
+                    results
+                </li>
+                <pre><code data-trim data-noescape class="java">
+                    // runs 6 measurement iterations, 5 seconds each
+                    @Measurement(iterations = 6, time = 5, timeUnit = SECONDS)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Mode</h3>
+            <ul>
+                <li>Defines what JMH shall measure on the measurement iterations</li>
+                <li>There are 5 supported modes
+                    <ul>
+                        <li>Throughput</li>
+                        <li>AverageTime</li>
+                        <li>SampleTime</li>
+                        <li>SingleShotTime</li>
+                        <li>All</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Mode: Throughput</h3>
+            <ul>
+                <li>Number of iterations per time unit*</li>
+                <pre><code data-trim data-noescape class="java">
+                    @BenchmarkMode(Throughput)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Mode: Average Time</h3>
+            <ul>
+                <li>Average time that it takes to run an iteration</li>
+                <pre><code data-trim data-noescape class="java">
+                    @BenchmarkMode(AverageTime)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Mode: Sample Time</h3>
+            <ul>
+                <li>How long it takes to run an iteration
+                    <ul>
+                        <li>includes different buckets such as min and max</li>
+                    </ul>
+                </li>
+                <pre><code data-trim data-noescape class="java">
+                    @BenchmarkMode(SampleTime)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Mode: Single Shot Time</h3>
+            <ul>
+                <li>How long it takes to run an iteration without warm up (cold start)</li>
+                <pre><code data-trim data-noescape class="java">
+                    @BenchmarkMode(SingleShotTime)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Mode: All</h3>
+            <ul>
+                <li>Enables all 4 modes: throughput, sample / average / single shot time</li>
+                <pre><code data-trim data-noescape class="java">
+                    @BenchmarkMode(All)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Time Unit</h3>
+            <ul>
+                <li>Specifies the time units that will be used for the measurement</li>
+                <pre><code data-trim data-noescape class="java">
+                    // sets the measurement unit to microseconds
+                    @OutputTimeUnit(MICROSECONDS)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Concurrency</h3>
+            <ul>
+                <li>Sets the desired concurrency for a benchmark iteration</li>
+                <pre><code data-trim data-noescape class="java">
+                    // Each benchmark iteration will be run concurrently by 4 threads
+                    @Threads(4)
+                </code></pre>
+                <li>Setting to <strong>THREAD.MAX</strong> will dynamically set the number of threads to the number of
+                    available CPUs at runtime
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>Timeout</h3>
+            <ul>
+                <li>Sets the maximum duration of each benchmark iteration</li>
+                <pre><code data-trim data-noescape class="java">
+                    // executes each benchmark for 10 seconds
+                    @Timeout(time = 10, timeUnit = SECONDS)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark State</h3>
+            <ul>
+                <li>Runs code (initialization of variables) outside of the iteration loops of the benchmarks</li>
+                <li>These variables which hold state are called state variables</li>
+                <li>Typically modeled as inner static classes which hold the state variables</li>
+                <li>State variables have a configurable scope
+                    <ul>
+                        <li>Benchmark</li>
+                        <li>Group</li>
+                        <li>Thread</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark State: Benchmark</h3>
+            <ul>
+                <li>Shared across all threads</li>
+                <li>Essentially a Singleton</li>
+                <pre><code data-trim data-noescape class="java">
+                    @State(Scope.Benchmark)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark State: Group</h3>
+            <ul>
+                <li>Shared across all threads of the same group</li>
+                <pre><code data-trim data-noescape class="java">
+                    @State(Scope.Group)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark State: Thread</h3>
+            <ul>
+                <li>New instance of the variable for each thread</li>
+                <pre><code data-trim data-noescape class="java">
+                    @State(Scope.Thread)
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Setup and Teardown</h3>
+            <ul>
+                <li>Similar philosophy as used by many testing frameworks</li>
+                <li>Annotations that mark functions to run at a specific time (called levels) during the benchmark
+                    execution
+                </li>
+                <li>3 supported levels:
+                    <ul>
+                        <li>Trial: before/after each benchmark</li>
+                        <li>Iteration: before/after each benchmark iteration</li>
+                        <li>Invocation: before/after each benchmark method</li>
+                    </ul>
+                </li>
+                <pre><code data-trim data-noescape class="kotlin">
+                    @Setup(Level.Trial)
+                    fun setup() { }
+
+                    @Teardown(Level.Trial)
+                    fun clean() { }
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>Benchmark Target</h3>
+            <ul>
+                <li>How we specify which function(s)/method(s) are meant to be benchmarked</li>
+                <pre><code data-trim data-noescape class="kotlin">
+                    @Benchmark
+                    fun inv_sqrt() { ... }
+                </code></pre>
+            </ul>
+        </section>
+        <section>
+            <h3>JMH Concepts: Simplified Example</h3>
+            <pre><code data-trim data-noescape class="kotlin">
+@Warmup(iterations = 1, time = 2, timeUnit = SECONDS)
+@Measurement(iterations = 3, time = 2, timeUnit = SECONDS)
+@Timeout(time = 4, timeUnit = SECONDS)
+@BenchmarkMode(Throughput)
+@OutputTimeUnit(MICROSECONDS)
+@State(Scope.Benchmark)
+open class MathInvSqrtBenchmark {
+    private lateinit var service: MathService
+
+    @Setup(Level.Trial)
+    open fun setup() { service = MathService.create() }
+
+    @Benchmark
+    fun inv_sqrt() { service.inv_sqrt(42.0) }
+}
+            </code></pre>
+        </section>
+        <section>
+            <h3>JMH Integrations</h3>
+            <ul>
+                <li>Integrations with pretty much any build system that targets the JVM</li>
+                <li>Integrations for IDEs are also available</li>
+                <li>We'll focus on Gradle</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Gradle Integration</h3>
+            <ol>
+                <li>As simple as importing and applying a Plugin
+                    <pre><code data-trim data-noescape class="groovy">
+                    plugins {
+                        id("me.champeau.jmh") version "0.6.6"
+                    }
+                    </code></pre>
+                    <ul>
+                        <li>Adds jmh source set (root) automatically</li>
+                    </ul>
+                </li>
+                <li>Configure the plugin to properly discovery your benchmark files (next slide)</li>
+                <li>Just run the provided <code>jmh</code> task</li>
+            </ol>
+        </section>
+        <section>
+            <h3>Gradle Plugin Configuration</h3>
+            <ul>
+                <li>Standard configuration works just fine but you must tell the plugin where to look for the benchmark
+                    files
+                    <pre><code data-trim data-noescape class="groovy">
+// set to fail the build on error
+failOnError.set(true)
+
+// create reports in JSON (file) and textual format to the console
+resultFormat.set("JSON")
+val reportsDirectory = File("build/reports/jmh/").apply { mkdirs() }
+resultsFile.set(reportsDirectory.resolve("report.json"))
+
+// configure the benchmarks to run
+// by default run all of them; assumes a Benchmark suffix pattern
+val pattern = project.findProperty("benchmark")
+              ?.toString() ?: ".*Benchmark"
+includes.add(pattern)
+            </code></pre>
+                </li>
+                <li>All (default) configurations options are available at
+                    <small><a href="https://github.com/melix/jmh-gradle-plugin#configuration-options">
+                        github.com/melix/jmh-gradle-plugin#configuration-options
+                    </a></small>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>Hands-on exercise</h3>
+            <p>
+                <small>
+                    Use the <a target="_blank" href="https://github.com/davidafsilva/jmh-intro">sample project</a> and
+                    benchmark both sequential number generators to determine how many operations per time unit (e.g.
+                    micros) each of them can handle.
+                    <br/>
+                    Feel free to play around with the iterations/durations.
+                </small>
+            </p>
+            <h4>Cheat Commands</h4>
+            <pre><code class="shell" data-trim contenteditable>
+                git checkout benchmark_setup_gradle
+            </code></pre>
+            <pre><code class="shell" data-trim contenteditable>
+                git checkout benchmark_setup_generators
+            </code></pre>
+        </section>
+        <section>
+            <h1>Questions?</h1>
+            <h4>Thank you!</h4>
+        </section>
+    </div>
+</div>
+<script type="module" src="/main.js"></script>
+</body>
+</html>
